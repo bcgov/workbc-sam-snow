@@ -2,9 +2,9 @@ apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   creationTimestamp: null
-  name: workbc-sam-api-template
+  name: workbc-sam-snow-api-template
 labels:
-  template: workbc-sam-api
+  template: workbc-sam-snow-api
 objects:
 - apiVersion: v1
   kind: ImageStream
@@ -52,7 +52,7 @@ parameters:
   displayName: Name
   name: NAME
   required: true
-  value: workbc-sam-api
+  value: workbc-sam-snow-api
 - description: A name suffix used for all objects
   displayName: Suffix
   name: SUFFIX
@@ -67,7 +67,7 @@ parameters:
   displayName: SOURCE_REPOSITORY_URL
   name: SOURCE_REPOSITORY_URL
   required: true
-  value: https://github.com/bcgov/workbc-sam-api
+  value: https://github.com/bcgov/workbc-sam-snow
 - description: SOURCE_REPOSITORY_REF
   displayName: SOURCE_REPOSITORY_REF
   name: SOURCE_REPOSITORY_REF
