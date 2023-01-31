@@ -3,9 +3,9 @@ import express from "express"
 import helmet from "helmet"
 import bodyParser from "body-parser"
 import basicAuth from "express-basic-auth"
-import morgan from "morgan"
-
 import * as sam from "./routes/sam.route"
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const morgan = require("morgan")
 
 const APP_USER: string = process.env.APP_USER!
 const APP_PASS: string = process.env.APP_PASS!
