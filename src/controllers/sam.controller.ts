@@ -7,10 +7,12 @@ export const getPermissions = async (req: express.Request, res: express.Response
     try {
         const user = await samService.getUser(req.params.guid, false)
         // console.log(user)
-        const hasSNOWAccess = user.Properties.some((props: any) => props.SecurityRole.ApplicationCode === "SARA")
-        user.SNOWAccess = hasSNOWAccess
-        user.StartDate = moment(user.StartDate).toDate()
-        user.EndDate = moment(user.EndDate).toDate()
+        const accessEnded = (moment(user.EndDate).utc().diff(moment().utc()) < 0)
+        const hasSNOWAccess = user.Properties.some((props: any) => props.SecurityRole.ApplicationCode === "SARA" && (moment(props.EndDate).isValid() ? ((moment(props.EndDate).utc().diff(moment().utc())) < 0) : true))
+
+        user.SNOWAccess = !accessEnded && hasSNOWAccess
+        delete user.StartDate
+        delete user.EndDate
         delete user.Properties
         delete user.RowVersion
         delete user.GUID
@@ -30,16 +32,17 @@ export const getAll = async (req: express.Request, res: express.Response) => {
         const filteredUsers = users.filter((item: any) => item.Properties.length > 0)
         // let organizations: any[]= []
         filteredUsers.forEach((u: any) => {
-            const hasSNOWAccess = u.Properties.some((props: any) => props.SecurityRole.ApplicationCode === "SARA")
+            const accessEnded = (moment(u.EndDate).utc().diff(moment().utc()) < 0)
+            const hasSNOWAccess = u.Properties.some((props: any) => props.SecurityRole.ApplicationCode === "SARA" && (moment(props.EndDate).isValid() ? ((moment(props.EndDate).utc().diff(moment().utc())) < 0) : true))
             /*
             const org = u.Organization || ""
             if (!(organizations.indexOf(org) > -1)){
                 organizations.push(org)
             }
             */
-            u.SNOWAccess = hasSNOWAccess
-            u.StartDate = moment(u.StartDate).toDate()
-            u.EndDate = moment(u.EndDate).toDate()
+            u.SNOWAccess = !accessEnded && hasSNOWAccess
+            delete u.StartDate
+            delete u.EndDate
             delete u.Properties
             delete u.RowVersion
             delete u.GUID
