@@ -1,11 +1,17 @@
+/* eslint-disable no-prototype-builtins */
 /* eslint-disable no-param-reassign */
 import * as express from "express"
 import moment from "moment"
 import * as samService from "../services/sam.service"
 
+const orgs = JSON.parse(process.env.ORGS || "{}")
+
 export const getPermissions = async (req: express.Request, res: express.Response) => {
     try {
         const user = await samService.getUser(req.params.guid, false)
+        if (!orgs.hasOwnProperty(user.Organization)) {
+            return res.status(200).send({})
+        }
         // console.log(user)
         const accessEnded = moment(user.EndDate).utc().diff(moment().utc()) < 0
         const hasSNOWAccess = user.Properties.some(
@@ -33,7 +39,9 @@ export const getPermissions = async (req: express.Request, res: express.Response
 export const getAll = async (req: express.Request, res: express.Response) => {
     try {
         const users = await samService.getAll(false)
-        const filteredUsers = users.filter((item: any) => item.Properties.length > 0)
+        const usersWithPermissions = users.filter((item: any) => item.Properties.length > 0)
+        const filteredUsers = usersWithPermissions.filter((item: any) => orgs.hasOwnProperty(item.Organization))
+
         // let organizations: any[]= []
         filteredUsers.forEach((u: any) => {
             const accessEnded = moment(u.EndDate).utc().diff(moment().utc()) < 0
@@ -48,6 +56,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
                 organizations.push(org)
             }
             */
+            u.Organization = orgs[u.Organization]
             u.SNOWAccess = !accessEnded && hasSNOWAccess
             delete u.StartDate
             delete u.EndDate
