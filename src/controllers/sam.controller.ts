@@ -19,7 +19,7 @@ export const getPermissions = async (req: express.Request, res: express.Response
                 props.SecurityRole.ApplicationCode === "SARA" &&
                 (moment(props.EndDate).isValid() ? moment(props.EndDate).utc().diff(moment().utc()) < 0 : true)
         )
-
+        user.Organization = orgs[user.Organization]
         user.SNOWAccess = !accessEnded && hasSNOWAccess
         delete user.StartDate
         delete user.EndDate
