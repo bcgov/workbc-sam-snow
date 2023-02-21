@@ -1,4 +1,4 @@
-FROM artifacts.developer.gov.bc.ca/docker-remote/node:lts-alpine3.16
+FROM artifacts.developer.gov.bc.ca/docker-remote/node:lts-alpine3.17
 ENV NODE_ENV=production
 WORKDIR /app
 COPY . /app
