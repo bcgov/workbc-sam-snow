@@ -1,7 +1,8 @@
-FROM artifacts.developer.gov.bc.ca/docker-remote/node:19-alpine3.17
+FROM artifacts.developer.gov.bc.ca/docker-remote/node:lts-alpine3.17
 ENV NODE_ENV=production
 WORKDIR /app
 COPY . /app
+RUN npm -g install npm@latest
 RUN npm i --production
 RUN npm run build
 EXPOSE 8000
