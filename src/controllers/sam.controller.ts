@@ -16,7 +16,7 @@ export const getPermissions = async (req: express.Request, res: express.Response
         const accessEnded = moment(user.EndDate).utc().diff(moment().utc()) < 0
         const hasSNOWAccess = user.Properties.some(
             (props: any) =>
-                props.SecurityRole.ApplicationCode === "SARA" &&
+                props.SecurityRole.ApplicationCode === "SNOW" &&
                 (moment(props.EndDate).isValid() ? moment(props.EndDate).utc().diff(moment().utc()) < 0 : true)
         )
         user.Organization = orgs[user.Organization]
@@ -27,7 +27,7 @@ export const getPermissions = async (req: express.Request, res: express.Response
         delete user.RowVersion
         delete user.GUID
         delete user.TypeDescription
-        // const hasSNOWAccess = permissions.some((permission: any) => permission.Application === "SARA")
+        // const hasSNOWAccess = permissions.some((permission: any) => permission.Application === "SNOW")
         // response.data.filter((item: any) => item.Application === "WGS")
         return res.status(200).send(user)
     } catch (error: any) {
@@ -47,7 +47,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
             const accessEnded = moment(u.EndDate).utc().diff(moment().utc()) < 0
             const hasSNOWAccess = u.Properties.some(
                 (props: any) =>
-                    props.SecurityRole.ApplicationCode === "SARA" &&
+                    props.SecurityRole.ApplicationCode === "SNOW" &&
                     (moment(props.EndDate).isValid() ? moment(props.EndDate).utc().diff(moment().utc()) < 0 : true)
             )
             /*
