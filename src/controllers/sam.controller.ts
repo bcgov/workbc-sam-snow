@@ -41,6 +41,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
         const users = await samService.getAll(false)
         const usersWithPermissions = users.filter((item: any) => item.Properties.length > 0)
         const filteredUsers = usersWithPermissions.filter((item: any) => orgs.hasOwnProperty(item.Organization))
+        const sysUsers = { sys_users: {} }
 
         // let organizations: any[]= []
         filteredUsers.forEach((u: any) => {
@@ -68,7 +69,8 @@ export const getAll = async (req: express.Request, res: express.Response) => {
 
         // .Properties.filter((prop: any) => prop.SecurityRole.ApplicationCode === "RSB")
         // .filter()
-        return res.status(200).send(filteredUsers)
+        sysUsers.sys_users = filteredUsers
+        return res.status(200).send(sysUsers)
     } catch (error: any) {
         console.log(error)
         return res.status(500).send("Internal Server Error")
