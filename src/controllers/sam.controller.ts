@@ -43,7 +43,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
         const usersWithAccessNotEnded = usersWithPermissions.filter(
             (item: any) => item.EndDate === null || !(moment(item.EndDate).utc().diff(moment().utc()) < 0)
         )
-        const filteredUsers = usersWithAccessNotEnded.filter((item: any) => orgs.hasOwnProperty(item.Organization))
+        const filteredUsers = usersWithAccessNotEnded.filter((item: any) => !orgs.hasOwnProperty(item.Organization))
 
         // let organizations: any[]= []
         filteredUsers.forEach((u: any) => {
@@ -53,17 +53,22 @@ export const getAll = async (req: express.Request, res: express.Response) => {
                     props.SecurityRole.ApplicationCode === "SNOW" &&
                     (moment(props.EndDate).isValid() ? moment(props.EndDate).utc().diff(moment().utc()) < 0 : true)
             )
+            const props: any[] = []
+            u.Properties.forEach((p: any) => {
+                props.push(`${p.SecurityRole.ApplicationCode}-${p.Catchment.AbbreviatedCode}-${p.SecurityRole.Name}`)
+            })
             /*
             const org = u.Organization || ""
             if (!(organizations.indexOf(org) > -1)){
                 organizations.push(org)
             }
             */
-            u.Organization = orgs[u.Organization]
+            // u.Organization = orgs[u.Organization]
             u.SNOWAccess = !accessEnded && hasSNOWAccess
             delete u.StartDate
             delete u.EndDate
-            delete u.Properties
+            // delete u.Properties
+            u.Properties = props
             delete u.RowVersion
             delete u.GUID
             delete u.TypeDescription
