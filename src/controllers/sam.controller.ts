@@ -40,9 +40,11 @@ export const getAll = async (req: express.Request, res: express.Response) => {
     try {
         const users = await samService.getAll(false)
         const usersWithPermissions = users.filter((item: any) => item.Properties.length > 0)
-        const filteredUsers = usersWithPermissions.filter((item: any) => orgs.hasOwnProperty(item.Organization))
+        const usersWithAccessNotEnded = usersWithPermissions.filter(
+            (item: any) => item.EndDate === null || !(moment(item.EndDate).utc().diff(moment().utc()) < 0)
+        )
+        const filteredUsers = usersWithAccessNotEnded.filter((item: any) => orgs.hasOwnProperty(item.Organization))
         const sysUsers = { sys_users: {} }
-
         // let organizations: any[]= []
         filteredUsers.forEach((u: any) => {
             const accessEnded = moment(u.EndDate).utc().diff(moment().utc()) < 0
