@@ -12,12 +12,10 @@ export const getPermissions = async (req: express.Request, res: express.Response
         if (!orgs.hasOwnProperty(user.Organization)) {
             return res.status(200).send({})
         }
-        // console.log(user)
-        const accessEnded = moment(user.EndDate).utc().diff(moment().utc()) < 0
+        const accessEnded = moment(user.EndDate).utc().diff(moment().utc()) <= 0 // Users should only be excluded if their end date is today or in the past
         const hasSNOWAccess = user.Properties.some(
             (props: any) =>
-                props.SecurityRole.ApplicationCode === "SNOW" &&
-                (moment(props.EndDate).isValid() ? moment(props.EndDate).utc().diff(moment().utc()) < 0 : true)
+                props.SecurityRole.ApplicationCode === "SNOW"
         )
         user.Organization = orgs[user.Organization]
         user.SNOWAccess = !accessEnded && hasSNOWAccess
