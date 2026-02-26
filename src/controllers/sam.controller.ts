@@ -37,7 +37,7 @@ export const getAll = async (req: express.Request, res: express.Response) => {
             (item: any) => item.EndDate === null || !(moment(item.EndDate).utc().diff(moment().utc()) < 0)
         )
         const filteredUsers = usersWithAccessNotEnded.filter((item: any) => orgs.hasOwnProperty(item.Organization))
-
+        const sysUsers = { sys_users: {} }
         filteredUsers.forEach((u: any) => {
             const accessEnded = moment(u.EndDate).utc().diff(moment().utc()) < 0
             const hasSNOWAccess = u.Properties.some(
@@ -54,8 +54,8 @@ export const getAll = async (req: express.Request, res: express.Response) => {
             delete u.GUID
             delete u.TypeDescription
         })
-
-        return res.status(200).send(filteredUsers)
+        sysUsers.sys_users = filteredUsers
+        return res.status(200).send(sysUsers)
     } catch (error: any) {
         console.log(error)
         return res.status(500).send("Internal Server Error")
