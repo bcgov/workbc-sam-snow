@@ -39,17 +39,19 @@ app.use(
 
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-        console.log(req.headers)
         console.log('validating')
-        
-        if (!req.headers.authorization) {
-            return res.status(403).send("Unauthorized")
-        }
-        if (!req.headers.authorization.includes("Bearer")) {
-            return res.status(403).send("Unauthorized")
-        }
+        const tokenTest = process.env.TOKEN || ""
+        const token = tokenTest.split(" ")[1]
+        console.log('tokenTest: ', tokenTest)
+        console.log('token ', token);
+        // if (!req.headers.authorization) {
+        //     return res.status(403).send("Unauthorized")
+        // }
+        // if (!req.headers.authorization.includes("Bearer")) {
+        //     return res.status(403).send("Unauthorized")
+        // }
         // else some kind of token is present
-        const token = req.headers.authorization.split(" ")[1]
+        // const token = req.headers.authorization.split(" ")[1]
         const verify = jwt.verify(token, process.env.APP_PASS || "", { audience: process.env.APP_USER || "" })
         if (verify) {
             return next()
