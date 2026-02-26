@@ -39,6 +39,9 @@ app.use(
 
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
+        console.log(req.headers)
+        console.log('validating')
+        
         if (!req.headers.authorization) {
             return res.status(403).send("Unauthorized")
         }
