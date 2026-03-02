@@ -39,12 +39,12 @@ app.use(
 
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-        if (!req.headers.authorization) {
-            return res.status(403).send("Unauthorized")
-        }
-        if (!req.headers.authorization.includes("Bearer")) {
-            return res.status(403).send("Unauthorized")
-        }
+        // if (!req.headers.authorization) {
+        //     return res.status(403).send("Unauthorized")
+        // }
+        // if (!req.headers.authorization.includes("Bearer")) {
+        //     return res.status(403).send("Unauthorized")
+        // }
         const tokenTest = process.env.TOKEN || ""
         const token = tokenTest.split(" ")[1]
 
