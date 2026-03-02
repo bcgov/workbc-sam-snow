@@ -48,11 +48,12 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
         const tokenTest = process.env.TOKEN || ""
         const token = tokenTest.split(" ")[1]
 
-        console.log(req.headers)
-        const incomingToken = req.headers.authorization?.split(" ")[1]
-        if (token !== incomingToken) {
-            return res.status(403).send("Unauthorized")
-        }
+        // console.log(req.headers)
+        // const incomingToken = req.headers.authorization?.split(" ")[1]
+        // if (token !== incomingToken) {
+        //     return res.status(403).send("Unauthorized")
+        // }
+
         // if (!req.headers.authorization) {
         //     return res.status(403).send("Unauthorized")
         // }
