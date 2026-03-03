@@ -39,13 +39,6 @@ app.use(
 
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-        if (!req.headers.authorization) {
-            return res.status(403).send("Unauthorized")
-        }
-        if (!req.headers.authorization.includes("Bearer")) {
-            return res.status(403).send("Unauthorized")
-        }
-
         const allowedIPs = (process.env.ALLOWED_IPS ?? "").split(",").map((ip) => ip.trim())
 
         const rawIP = req.headers["x-forwarded-for"]
@@ -53,10 +46,14 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
             (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
 
         if (!allowedIPs.includes(requestIP)) {
-            return res.status(403).json({ error: "Unauthorized" })
+            return res.status(403).json({ error: "Unauthorized IP" })
         }
-
-        next()
+        if (!req.headers.authorization) {
+            return res.status(403).send("Unauthorized")
+        }
+        if (!req.headers.authorization.includes("Bearer")) {
+            return res.status(403).send("Unauthorized")
+        }
 
         const tokenTest = process.env.TOKEN || ""
         const token = tokenTest.split(" ")[1]
