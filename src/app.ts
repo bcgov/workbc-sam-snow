@@ -37,23 +37,48 @@ app.use(
     })
 )
 
+function isIPAllowed(requestIP: string, allowedIPs: string[]): boolean {
+    return allowedIPs.some((entry) => {
+        if (entry.includes("*")) {
+            const pattern = entry.split(".").slice(0, 3).join(".")
+            return requestIP.startsWith(pattern)
+        }
+        return entry === requestIP
+    })
+}
+
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
+        const allowedIPs = (process.env.ALLOWED_IPS ?? "").split(",").map((ip) => ip.trim())
+
+        const rawIP = req.headers["x-forwarded-for"]
+        const requestIP =
+            (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
+
+        if (!isIPAllowed(requestIP, allowedIPs)) {
+            return res.status(403).send("Unauthorized IP")
+        }
         if (!req.headers.authorization) {
             return res.status(403).send("Unauthorized")
         }
         if (!req.headers.authorization.includes("Bearer")) {
             return res.status(403).send("Unauthorized")
         }
-        // else some kind of token is present
-        const token = req.headers.authorization.split(" ")[1]
+
+        const tokenTest = process.env.TOKEN || ""
+        const token = tokenTest.split(" ")[1]
+        const incomingToken = req.headers.authorization?.split(" ")[1]
+
+        if (token !== incomingToken) {
+            return res.status(403).send("Unauthorized")
+        }
+
         const verify = jwt.verify(token, process.env.APP_PASS || "", { audience: process.env.APP_USER || "" })
         if (verify) {
             return next()
         }
         return res.status(403).send("Unauthorized")
     } catch (error: any) {
-        console.log(error)
         return res.status(500).send("Internal Server Error")
     }
 }
