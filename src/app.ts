@@ -56,7 +56,7 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
             (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
 
         if (!isIPAllowed(requestIP, allowedIPs)) {
-            return res.status(403).json({ error: "Unauthorized IP" })
+            return res.status(403).send("Unauthorized IP")
         }
         if (!req.headers.authorization) {
             return res.status(403).send("Unauthorized")
@@ -67,8 +67,8 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
 
         const tokenTest = process.env.TOKEN || ""
         const token = tokenTest.split(" ")[1]
-
         const incomingToken = req.headers.authorization?.split(" ")[1]
+
         if (token !== incomingToken) {
             return res.status(403).send("Unauthorized")
         }
@@ -79,7 +79,6 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
         }
         return res.status(403).send("Unauthorized")
     } catch (error: any) {
-        console.log(error)
         return res.status(500).send("Internal Server Error")
     }
 }
