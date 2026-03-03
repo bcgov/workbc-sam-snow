@@ -39,29 +39,33 @@ app.use(
 
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
-        // if (!req.headers.authorization) {
-        //     return res.status(403).send("Unauthorized")
-        // }
-        // if (!req.headers.authorization.includes("Bearer")) {
-        //     return res.status(403).send("Unauthorized")
-        // }
+        if (!req.headers.authorization) {
+            return res.status(403).send("Unauthorized")
+        }
+        if (!req.headers.authorization.includes("Bearer")) {
+            return res.status(403).send("Unauthorized")
+        }
+
+        const allowedIPs = (process.env.ALLOWED_IPS ?? "").split(",").map((ip) => ip.trim())
+
+        const rawIP = req.headers["x-forwarded-for"]
+        const requestIP =
+            (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
+
+        if (!allowedIPs.includes(requestIP)) {
+            return res.status(403).json({ error: "Unauthorized" })
+        }
+
+        next()
+
         const tokenTest = process.env.TOKEN || ""
         const token = tokenTest.split(" ")[1]
 
-        // console.log(req.headers)
-        // const incomingToken = req.headers.authorization?.split(" ")[1]
-        // if (token !== incomingToken) {
-        //     return res.status(403).send("Unauthorized")
-        // }
+        const incomingToken = req.headers.authorization?.split(" ")[1]
+        if (token !== incomingToken) {
+            return res.status(403).send("Unauthorized")
+        }
 
-        // if (!req.headers.authorization) {
-        //     return res.status(403).send("Unauthorized")
-        // }
-        // if (!req.headers.authorization.includes("Bearer")) {
-        //     return res.status(403).send("Unauthorized")
-        // }
-        // else some kind of token is present
-        // const token = req.headers.authorization.split(" ")[1]
         const verify = jwt.verify(token, process.env.APP_PASS || "", { audience: process.env.APP_USER || "" })
         if (verify) {
             return next()
