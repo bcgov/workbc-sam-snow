@@ -37,6 +37,16 @@ app.use(
     })
 )
 
+function isIPAllowed(requestIP: string, allowedIPs: string[]): boolean {
+    return allowedIPs.some((entry) => {
+        if (entry.includes("*")) {
+            const pattern = entry.split(".").slice(0, 3).join(".")
+            return requestIP.startsWith(pattern)
+        }
+        return entry === requestIP
+    })
+}
+
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const allowedIPs = (process.env.ALLOWED_IPS ?? "").split(",").map((ip) => ip.trim())
@@ -45,7 +55,7 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
         const requestIP =
             (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
 
-        if (!allowedIPs.includes(requestIP)) {
+        if (!isIPAllowed(requestIP, allowedIPs)) {
             return res.status(403).json({ error: "Unauthorized IP" })
         }
         if (!req.headers.authorization) {
