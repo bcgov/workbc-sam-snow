@@ -4,7 +4,40 @@ import * as express from "express"
 import moment from "moment"
 import * as samService from "../services/sam.service"
 
-const orgs = JSON.parse(process.env.ORGS || "{}")
+const orgs = JSON.parse(`{
+    "NORTH ISLAND EMPLOYMENT FOUNDATIONS SOCIETY": "North Island Employment Foundations Society",
+    "Creative Employment Access Society": "Creative Employment Access Society",
+    "Central Vancouver Island Job Opportunities Building Society": "Central Vancouver Island Job Opportunities Building Society",
+    "MAXIMUS CANADA EMPLOYMENT SERVICES INC.": "MAXIMUS Canada Employment Services Inc.",
+    "ETHOS CAREER MANAGEMENT GROUP LTD.": "ETHOS Career Management Group Ltd.",
+    "WORKLINK EMPLOYMENT SOCIETY": "WorkLink Employment Society",
+    "BEACON COMMUNITY ASSOCIATION": "Beacon Community Association",
+    "OPEN DOOR SOCIAL SERVICES SOCIETY  ": "Open Door Social Services Society",
+    "OPEN DOOR SOCIAL SERVICES SOCIETY ": "Open Door Social Services Society",
+    "OPEN DOOR SOCIAL SERVICES SOCIETY": "Open Door Social Services Society",
+    "YOUNG WOMEN'S CHRISTIAN ASSOCIATION": "Young Women's Christian Association",
+    "Pacific Community Resources Society": "Pacific Community Resources Society",
+    "MOSAIC Multi-lingual Orientation Services Association for Immigrant Communities": "MOSAIC Multi-lingual Orientation Services Association for Immigrant Communities",
+    "United Chinese Community Enrichment Services Society": "United Chinese Community Enrichment Services Society",
+    "Douglas College": "Douglas College",
+    "OPTIONS COMMUNITY SERVICES SOCIETY": "Options Community Services Society",
+    "WCG INTERNATIONAL CONSULTANTS LTD.": "WCG International Consultants Ltd.",
+    "WCG International Consultants Ltd.": "WCG International Consultants Ltd.",
+    "FRASER WORKS CO-OPERATIVE": "Fraser Works Co-operative",
+    "HORTON VENTURES INC.": "Horton Ventures Inc.",
+    "COMMUNITY FUTURES DEVELOPMENT CORPORATION OF THOMPSON COUNTRY": "Community Futures Development Corporation of Thompson Country",
+    "Kootenay Career Development Society": "Kootenay Career Development Society",
+    "COMMUNITY FUTURES DEVELOPMENT CORPORATION OF THE NORTH OKANAGAN": "Community Futures Development Corporation of the North Okanagan",
+    "HECATE STRAIT EMPLOYMENT DEVELOPMENT SOCIETY": "Hecate Strait Employment Development Society",
+    "NORTHWEST TRAINING LTD.": "Northwest Training Ltd.",
+    "KOPAR ADMINISTRATION LTD.": "Kopar Administration Ltd.",
+    "PROGRESSIVE EMPLOYMENT SERVICES LTD.": "Progressive Employment Services Ltd.",
+    "EMPLOYMENT CONNECTIONS NORTH CORP.": "Employment Connections North Corp.",
+    "Neil Squire Society": "Neil Squire Society",
+    "Kootenay Employment Services Society": "Kootenay Employment Services Society",
+    "KES2WCG": "KES2WCG",
+    "XCG international": "XCG international"
+}`)
 
 export const getPermissions = async (req: express.Request, res: express.Response) => {
     try {
@@ -13,10 +46,7 @@ export const getPermissions = async (req: express.Request, res: express.Response
             return res.status(200).send({})
         }
         const accessEnded = moment(user.EndDate).utc().diff(moment().utc()) <= 0 // Users should only be excluded if their end date is today or in the past
-        const hasSNOWAccess = user.Properties.some(
-            (props: any) =>
-                props.SecurityRole.ApplicationCode === "SNOW"
-        )
+        const hasSNOWAccess = user.Properties.some((props: any) => props.SecurityRole.ApplicationCode === "SNOW")
         user.Organization = orgs[user.Organization]
         user.SNOWAccess = !accessEnded && hasSNOWAccess
         delete user.StartDate
@@ -37,6 +67,7 @@ export const getPermissions = async (req: express.Request, res: express.Response
 export const getAll = async (req: express.Request, res: express.Response) => {
     try {
         const users = await samService.getAll(false)
+        console.log(`Total users from SAM: ${users.length}`)
         const usersWithPermissions = users.filter((item: any) => item.Properties.length > 0)
         const usersWithAccessNotEnded = usersWithPermissions.filter(
             (item: any) => item.EndDate === null || !(moment(item.EndDate).utc().diff(moment().utc()) < 0)
