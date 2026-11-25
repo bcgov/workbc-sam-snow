@@ -52,17 +52,19 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
         const allowedIPs = (process.env.ALLOWED_IPS ?? "").split(",").map((ip) => ip.trim())
 
         const rawIP = req.headers["x-forwarded-for"]
+        console.log("req.headers", req.headers)
+        console.log("allowedips", allowedIPs)
         const requestIP =
             (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
-
+        console.log("request ip", requestIP)
         if (!isIPAllowed(requestIP, allowedIPs)) {
             return res.status(403).send("Unauthorized IP")
         }
         if (!req.headers.authorization) {
-            return res.status(403).send("Unauthorized")
+            return res.status(403).send("Unauthorized, missing authorization token")
         }
         if (!req.headers.authorization.includes("Bearer")) {
-            return res.status(403).send("Unauthorized")
+            return res.status(403).send("Unauthorized, missing bearer token")
         }
 
         const tokenTest = process.env.TOKEN || ""
@@ -70,7 +72,7 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
         const incomingToken = req.headers.authorization?.split(" ")[1]
 
         if (token !== incomingToken) {
-            return res.status(403).send("Unauthorized")
+            return res.status(403).send("Unauthorized, incorrect token")
         }
 
         const verify = jwt.verify(token, process.env.APP_PASS || "", { audience: process.env.APP_USER || "" })
@@ -79,7 +81,8 @@ const validate = (req: express.Request, res: express.Response, next: express.Nex
         }
         return res.status(403).send("Unauthorized")
     } catch (error: any) {
-        return res.status(500).send("Internal Server Error")
+        console.log(error)
+        return res.status(500).send("Internal server error")
     }
 }
 
