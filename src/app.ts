@@ -50,13 +50,10 @@ function isIPAllowed(requestIP: string, allowedIPs: string[]): boolean {
 const validate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const allowedIPs = (process.env.ALLOWED_IPS ?? "").split(",").map((ip) => ip.trim())
-
         const rawIP = req.headers["x-forwarded-for"]
-        console.log("req.headers", req.headers)
-        console.log("allowedips", allowedIPs)
         const requestIP =
             (Array.isArray(rawIP) ? rawIP[0] : rawIP)?.split(",")[0].trim() ?? req.socket.remoteAddress ?? ""
-        console.log("request ip", requestIP)
+
         if (!isIPAllowed(requestIP, allowedIPs)) {
             return res.status(403).send("Unauthorized IP")
         }
